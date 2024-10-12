@@ -18,6 +18,7 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>stat_svc</module>
+		<module>main_svc</module>
 	</modules>
 
 	<properties>
