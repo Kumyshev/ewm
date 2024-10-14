@@ -202,6 +202,7 @@ public class EventService implements IEventService {
         return events.stream().map(eventMapper::toEventShortDto).toList();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public EventFullDto findEvent(Long id, HttpServletRequest httpServletRequest) {
         Event event = eventRepository.findById(id).orElseThrow();
