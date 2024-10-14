@@ -202,14 +202,13 @@ public class EventService implements IEventService {
         return events.stream().map(eventMapper::toEventShortDto).toList();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public EventFullDto findEvent(Long id, HttpServletRequest httpServletRequest) {
         Event event = eventRepository.findById(id).orElseThrow();
         LocalDateTime start = LocalDateTime.now().minusYears(10);
         LocalDateTime end = LocalDateTime.now();
         List<String> uris = List.of(httpServletRequest.getRequestURI());
-        List<Object> views =(List<Object>) statService.getStats(start, end, uris, true).getBody();
+        List<Object> views = (List<Object>) statService.getStats(start, end, uris, true).getBody();
         event.setViews(views.size());
         statService.postHit(httpServletRequest);
 
