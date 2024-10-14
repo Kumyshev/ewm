@@ -16,7 +16,5 @@ public class StatService implements IStatService {
 
     @Override
     public void postHit(HttpServletRequest httpServletRequest) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'postHit'");
     }
 }
