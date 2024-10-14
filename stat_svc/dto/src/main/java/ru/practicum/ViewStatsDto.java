@@ -9,12 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EndpointHitDto {
+public class ViewStatsDto {
     private String app;
 
     private String uri;
 
-    private String ip;
-
-    private String timestamp;
+    private Long hits;
 }
