@@ -13,5 +13,5 @@ public interface RequestRepository extends JpaRepository<Request, Long>, JpaSpec
 
     List<Request> findByEvent_Id(Long eventId);
 
-    Request findByRequester_IdAndId(Long userId, Long Id);
+    Request findByRequester_IdAndId(Long userId, Long id);
 }
