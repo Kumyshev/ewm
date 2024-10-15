@@ -62,7 +62,7 @@ public class EventService implements IEventService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime eventDate = LocalDateTime.parse(newEventDto.getEventDate(), TemplateSettings.DATE_FORMATTER);
 
-        if (!eventDate.isAfter(now.plusHours(2))) {
+        if (!eventDate.isBefore(now.plusHours(2))) {
             throw new ForbiddenException(
                     "Field: eventDate. Error: должно содержать дату, которая еще не наступила. Value: " + eventDate);
         }
@@ -101,7 +101,7 @@ public class EventService implements IEventService {
         LocalDateTime eventDate = LocalDateTime.parse(updateEventUserRequest.getEventDate(),
                 TemplateSettings.DATE_FORMATTER);
 
-        if (!eventDate.isAfter(now.plusHours(2))) {
+        if (!eventDate.isBefore(now.plusHours(2))) {
             throw new ForbiddenException(
                     "Field: eventDate. Error: должно содержать дату, которая еще не наступила. Value: " + eventDate);
         }
@@ -144,7 +144,7 @@ public class EventService implements IEventService {
         LocalDateTime newEventDate = LocalDateTime.parse(updateEventAdminRequest.getEventDate(),
                 TemplateSettings.DATE_FORMATTER);
 
-        if (newEventDate != null && newEventDate.isAfter(now.plusHours(1))) {
+        if (newEventDate != null && newEventDate.isBefore(now.plusHours(1))) {
             throw new ForbiddenException(
                     "Field: eventDate. Error: должно содержать дату, которая еще не наступила. Value: " + newEventDate);
         }

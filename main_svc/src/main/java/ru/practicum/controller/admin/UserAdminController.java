@@ -28,8 +28,8 @@ public class UserAdminController {
     @GetMapping
     public List<UserDto> findUsers(
             @RequestParam(name = "ids", required = false) List<Long> ids,
-            @RequestParam(name = "from", required = false, defaultValue = "0") Integer from,
-            @RequestParam(name = "size", required = false, defaultValue = "10") Integer size) {
+            @RequestParam(name = "from", defaultValue = "0") Integer from,
+            @RequestParam(name = "size", defaultValue = "10") Integer size) {
         return userService.findUsers(ids, from, size);
     }
 
