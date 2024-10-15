@@ -20,7 +20,7 @@ import ru.practicum.enums.State;
 @AllArgsConstructor
 public class Event {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Size(min = 20, max = 2000)
     private String annotation;
