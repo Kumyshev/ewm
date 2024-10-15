@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,8 +20,9 @@ import ru.practicum.enums.State;
 @AllArgsConstructor
 public class Event {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Size(min = 20, max = 2000)
     private String annotation;
     @ManyToOne
     private Category category;
@@ -28,6 +30,7 @@ public class Event {
     private Integer confirmedRequests;
     @Column(name = "created_on")
     private String createdOn;
+    @Size(min = 20, max = 7000)
     private String description;
     @Column(name = "event_date")
     private String eventDate;
