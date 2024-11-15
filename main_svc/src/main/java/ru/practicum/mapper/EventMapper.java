@@ -10,18 +10,17 @@ import org.mapstruct.ReportingPolicy;
 
 import ru.practicum.dto.EventFullDto;
 import ru.practicum.dto.EventShortDto;
-import ru.practicum.dto.Location;
 import ru.practicum.dto.NewEventDto;
-import ru.practicum.dto.UpdateEventAdminRequest;
 import ru.practicum.dto.UpdateEventUserRequest;
 import ru.practicum.model.Event;
+import ru.practicum.model.Location;
 
-@Mapper(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING, unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, unmappedTargetPolicy = ReportingPolicy.IGNORE, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface EventMapper {
 
-    EventShortDto toEventShortDto(Event event);
-
     @Mapping(target = "category", ignore = true)
+    @Mapping(target = "lat", expression = "java(newEventDto.getLocation().getLat())")
+    @Mapping(target = "lon", expression = "java(newEventDto.getLocation().getLon())")
     Event toEvent(NewEventDto newEventDto);
 
     @Mapping(source = "event", target = "location", qualifiedByName = "convertToLocation")
@@ -35,9 +34,8 @@ public interface EventMapper {
                 .build();
     }
 
-    @Mapping(target = "category", ignore = true)
-    void toUpdate(UpdateEventUserRequest updateEventUserRequest, @MappingTarget Event event);
+    EventShortDto toEventShortDto(Event event);
 
     @Mapping(target = "category", ignore = true)
-    void toUpdate(UpdateEventAdminRequest updateEventAdminRequest, @MappingTarget Event event);
+    void toUpdate(UpdateEventUserRequest updateEventUserRequest, @MappingTarget Event event);
 }

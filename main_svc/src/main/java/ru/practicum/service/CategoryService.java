@@ -1,6 +1,7 @@
 package ru.practicum.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -24,8 +25,7 @@ public class CategoryService implements ICategoryService {
     @Override
     public CategoryDto saveCategory(NewCategoryDto newCategoryDto) {
         Category category = categoryMapper.toCategory(newCategoryDto);
-        categoryRepository.save(category);
-        return categoryMapper.toCategoryDto(category);
+        return categoryMapper.toCategoryDto(categoryRepository.save(category));
     }
 
     @Override
@@ -39,15 +39,17 @@ public class CategoryService implements ICategoryService {
     public CategoryDto updateCategory(Long catId, NewCategoryDto newCategoryDto) {
         Category category = categoryRepository.findById(catId)
                 .orElseThrow(() -> new NotFoundException("Category with id=" + catId + " was not found"));
-        categoryMapper.toUpdate(newCategoryDto, category);
-        categoryRepository.save(category);
-        return categoryMapper.toCategoryDto(category);
+        if (category.getName().equals(newCategoryDto.getName())) {
+
+        }
+        category.setName(newCategoryDto.getName());
+        return categoryMapper.toCategoryDto(categoryRepository.save(category));
     }
 
     @Override
     public List<CategoryDto> findCategories(Integer from, Integer size) {
-        return categoryRepository.findAll(PageRequest.of(from, size)).stream()
-                .map(categoryMapper::toCategoryDto).toList();
+        return categoryRepository.findAll(PageRequest.of(from, size)).stream().map(categoryMapper::toCategoryDto)
+                .collect(Collectors.toList());
     }
 
     @Override

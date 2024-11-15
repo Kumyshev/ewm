@@ -9,6 +9,7 @@ import org.mapstruct.ReportingPolicy;
 
 import ru.practicum.dto.CompilationDto;
 import ru.practicum.dto.NewCompilationDto;
+import ru.practicum.dto.UpdateCompilationRequest;
 import ru.practicum.model.Compilation;
 
 @Mapper(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING, unmappedTargetPolicy = ReportingPolicy.IGNORE)
@@ -19,5 +20,5 @@ public interface CompilationMapper {
     Compilation toCompilation(NewCompilationDto newCompilationDto);
 
     @Mapping(target = "events", ignore = true)
-    void toUpdate(NewCompilationDto newCompilationDto, @MappingTarget Compilation compilation);
+    void toUpdate(UpdateCompilationRequest updateCompilationRequest, @MappingTarget Compilation compilation);
 }

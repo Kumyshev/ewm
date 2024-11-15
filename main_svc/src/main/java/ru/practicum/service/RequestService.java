@@ -1,19 +1,16 @@
 package ru.practicum.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import ru.practicum.dto.EventRequestStatusUpdateRequest;
-import ru.practicum.dto.EventRequestStatusUpdateResult;
 import ru.practicum.dto.ParticipationRequestDto;
-import ru.practicum.enums.State;
-import ru.practicum.enums.Status;
-import ru.practicum.etc.TemplateSettings;
+import ru.practicum.enums.EventState;
+import ru.practicum.enums.RequestStatus;
+import ru.practicum.exception.BadRequestException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.impl.IRequestService;
 import ru.practicum.mapper.RequestMapper;
@@ -28,96 +25,51 @@ import ru.practicum.repository.UserRepository;
 @RequiredArgsConstructor
 public class RequestService implements IRequestService {
 
-    private final RequestRepository requestRepository;
-    private final RequestMapper requestMapper;
+        private final RequestRepository requestRepository;
+        private final RequestMapper requestMapper;
 
-    private final EventRepository eventRepository;
-    private final UserRepository userRepository;
+        private final EventRepository eventRepository;
+        private final UserRepository userRepository;
 
-    @Override
-    public List<ParticipationRequestDto> findRequests(Long userId) {
-        return requestRepository.findByRequester_Id(userId)
-                .stream()
-                .map(requestMapper::toParticipationRequestDto)
-                .toList();
-    }
-
-    @Override
-    public ParticipationRequestDto saveRequest(Long userId, Long eventId, HttpServletRequest httpServletRequest) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException(
-                        "Event with id=" + eventId + " was not found"));
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User with id=" + userId + " was not found"));
-
-        List<Request> requests = requestRepository.findByEvent_Id(eventId);
-
-        if (user.equals(event.getInitiator()) || event.getState() != State.PUBLISHED
-                || event.getParticipantLimit() == requests.size()) {
-            return null;
+        @Override
+        public List<ParticipationRequestDto> findRequestsByUser(Long userId) {
+                return requestRepository.findAllByRequester_Id(userId)
+                                .stream().map(requestMapper::toParticipationRequestDto)
+                                .collect(Collectors.toList());
         }
 
-        LocalDateTime now = LocalDateTime.now();
-        Request request = Request.builder()
-                .created(TemplateSettings.DATE_FORMATTER.format(now))
-                .event(event)
-                .requester(user)
-                .build();
-        if (event.getRequestModeration() == false) {
-            request.setStatus(Status.CONFIRMED.name());
+        @Override
+        public ParticipationRequestDto saveRequestByUser(Long userId, Long eventId) {
+                User user = userRepository.findById(userId)
+                                .orElseThrow(() -> new NotFoundException("User with id=" + userId + " was not found"));
+                Event event = eventRepository.findById(eventId)
+                                .orElseThrow(() -> new NotFoundException(
+                                                "Event with id=" + eventId + " was not found"));
+                Long initiatorId = event.getInitiator().getId();
+                if (initiatorId.equals(userId) || !event.getState().equals(EventState.PUBLISHED)
+                                || (event.getParticipantLimit() != 0
+                                                && event.getParticipantLimit().equals(event.getConfirmedRequests())))
+                        throw new BadRequestException(
+                                        "Failed to convert value of type java.lang.String to required type long; nested exception is java.lang.NumberFormatException: For input string: ad");
+
+                Request request = new Request();
+                request.setEvent(event);
+                request.setRequester(user);
+                int number = event.getConfirmedRequests();
+                if (event.getRequestModeration() == false || event.getParticipantLimit() == 0) {
+                        request.setStatus(RequestStatus.CONFIRMED);
+                        event.setConfirmedRequests(++number);
+                }
+                request.setCreated(LocalDateTime.now());
+                return requestMapper.toParticipationRequestDto(requestRepository.save(request));
         }
 
-        request.setStatus(State.PENDING.name());
-
-        return requestMapper.toParticipationRequestDto(requestRepository.save(request));
-    }
-
-    @Override
-    public ParticipationRequestDto updateRequest(Long userId, Long requestId) {
-
-        Request request = requestRepository.findByRequester_IdAndId(userId, requestId);
-
-        request.setStatus(Status.REJECTED.name());
-
-        return requestMapper.toParticipationRequestDto(requestRepository.save(request));
-    }
-
-    @Override
-    public List<ParticipationRequestDto> findEventRequests(Long userId, Long eventId) {
-        eventRepository.findByInitiator_IdAndId(userId, eventId)
-                .orElseThrow(() -> new NotFoundException(
-                        "Event with id=" + eventId + " or userId=" + userId + " was not found"));
-        return requestRepository.findByEvent_Id(eventId).stream()
-                .map(requestMapper::toParticipationRequestDto).toList();
-    }
-
-    @Override
-    public EventRequestStatusUpdateResult updateEventRequestStatus(Long userId, Long eventId,
-            EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
-        Event event = eventRepository.findByInitiator_IdAndId(userId, eventId)
-                .orElseThrow(() -> new NotFoundException(
-                        "Event with id=" + eventId + " or userId=" + userId + " was not found"));
-
-        List<Request> requests = requestRepository.findByEvent_Id(eventId)
-                .stream().filter(r -> r.getStatus().equals(State.PENDING.name())).toList();
-
-        if (event.getParticipantLimit() == 0 || event.getRequestModeration() == false) {
-            return null;
+        @Override
+        public ParticipationRequestDto updateRequestByUser(Long userId, Long requestId) {
+                Request request = requestRepository.findByRequester_IdAndId(userId, requestId)
+                                .orElseThrow(() -> new NotFoundException(
+                                                "Request with id=" + requestId + " was not found"));
+                request.setStatus(RequestStatus.CANCELED);
+                return requestMapper.toParticipationRequestDto(requestRepository.save(request));
         }
-
-        List<Request> confirmedRequests = null;
-        List<Request> rejectedRequests = null;
-        if (event.getParticipantLimit() < requests.size()) {
-            confirmedRequests = requests.subList(0, event.getParticipantLimit());
-            rejectedRequests = requests.subList(event.getParticipantLimit() + 1, requests.size());
-        } else {
-            confirmedRequests = new ArrayList<>(requests);
-            rejectedRequests = new ArrayList<>();
-        }
-        return EventRequestStatusUpdateResult.builder()
-                .confirmedRequests(confirmedRequests.stream().map(requestMapper::toParticipationRequestDto).toList())
-                .rejectedRequests(rejectedRequests.stream().map(requestMapper::toParticipationRequestDto).toList())
-                .build();
-    }
-
 }

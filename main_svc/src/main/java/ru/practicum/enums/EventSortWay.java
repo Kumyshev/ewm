@@ -1,5 +1,5 @@
 package ru.practicum.enums;
 
-public enum AvailableValues {
+public enum EventSortWay {
     EVENT_DATE, VIEWS
 }

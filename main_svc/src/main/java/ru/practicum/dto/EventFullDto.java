@@ -1,20 +1,22 @@
 package ru.practicum.dto;
 
-import lombok.AllArgsConstructor;
+import ru.practicum.model.Location;
+
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import ru.practicum.enums.State;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class EventFullDto {
     private String annotation;
     private CategoryDto category;
     private Integer confirmedRequests;
     private String createdOn;
     private String description;
-    private String eventDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime eventDate;
     private Long id;
     private UserShortDto initiator;
     private Location location;
@@ -22,7 +24,7 @@ public class EventFullDto {
     private Integer participantLimit;
     private String publishedOn;
     private Boolean requestModeration;
-    private State state;
+    private String state;
     private String title;
     private Integer views;
 }

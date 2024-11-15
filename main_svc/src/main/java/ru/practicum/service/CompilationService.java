@@ -1,6 +1,8 @@
 package ru.practicum.service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import ru.practicum.dto.CompilationDto;
 import ru.practicum.dto.NewCompilationDto;
+import ru.practicum.dto.UpdateCompilationRequest;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.impl.ICompilationService;
 import ru.practicum.mapper.CompilationMapper;
@@ -26,48 +29,49 @@ public class CompilationService implements ICompilationService {
     private final EventRepository eventRepository;
 
     @Override
-    public CompilationDto saveCompilation(NewCompilationDto newCompilationDto) {
+    public List<CompilationDto> findCompilations(Boolean pinned, Integer from, Integer size) {
+        if (pinned == null)
+            return compilationRepository.findAll(PageRequest.of(from, size)).stream()
+                    .map(compilationMapper::toCompilationDto).collect(Collectors.toList());
+        return compilationRepository.findByPinned(pinned, PageRequest.of(from, size)).stream()
+                .map(compilationMapper::toCompilationDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public CompilationDto findCompilation(Long compId) {
+        return compilationMapper.toCompilationDto(compilationRepository.findById(compId)
+                .orElseThrow(() -> new NotFoundException("Compilation with id=" + compId + " was not found")));
+    }
+
+    @Override
+    public CompilationDto saveCompilationByAdmin(NewCompilationDto newCompilationDto) {
+        List<Event> events = new ArrayList<>();
         Compilation compilation = compilationMapper.toCompilation(newCompilationDto);
-        List<Event> events = eventRepository.findAllById(newCompilationDto.getEvents());
+        if (newCompilationDto.getEvents() != null)
+            events = eventRepository.findAllById(newCompilationDto.getEvents());
         compilation.setEvents(events);
         return compilationMapper.toCompilationDto(compilationRepository.save(compilation));
     }
 
     @Override
-    public void deleteCompilation(Long compId) {
+    public void deleteCompilationByAdmin(Long compId) {
         Compilation compilation = compilationRepository.findById(compId)
                 .orElseThrow(() -> new NotFoundException("Compilation with id=" + compId + " was not found"));
-
         compilationRepository.delete(compilation);
     }
 
     @Override
-    public CompilationDto updateCompilation(Long compId, NewCompilationDto newCompilationDto) {
+    public CompilationDto updateCompilationByAdmin(Long compId, UpdateCompilationRequest updateCompilationByAdmin) {
         Compilation compilation = compilationRepository.findById(compId)
                 .orElseThrow(() -> new NotFoundException("Compilation with id=" + compId + " was not found"));
-        compilationMapper.toUpdate(newCompilationDto, compilation);
-
-        if (newCompilationDto.getEvents() != null) {
-            List<Event> events = eventRepository.findAllById(newCompilationDto.getEvents());
-            compilation.setEvents(events);
+        List<Event> events = new ArrayList<>();
+        if (updateCompilationByAdmin.getEvents() != null) {
+            events = eventRepository.findAllById(updateCompilationByAdmin.getEvents());
         }
+        compilationMapper.toUpdate(updateCompilationByAdmin, compilation);
+        if (!events.isEmpty())
+            compilation.setEvents(events);
         return compilationMapper.toCompilationDto(compilationRepository.save(compilation));
-    }
-
-    @Override
-    public List<CompilationDto> findCompilations(Boolean pinned, Integer from, Integer size) {
-
-        List<Compilation> compilations = compilationRepository.findByPinned(pinned, PageRequest.of(from, size));
-        List<CompilationDto> compilationDtos = compilations.stream().map(compilationMapper::toCompilationDto).toList();
-        return compilationDtos;
-    }
-
-    @Override
-    public CompilationDto findCompilation(Long compId) {
-        Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Compilation with id=" + compId + " was not found"));
-
-        return compilationMapper.toCompilationDto(compilation);
     }
 
 }

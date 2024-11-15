@@ -1,10 +1,9 @@
 package ru.practicum.service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,6 @@ import ru.practicum.impl.IUserService;
 import ru.practicum.mapper.UserMapper;
 import ru.practicum.model.User;
 import ru.practicum.repository.UserRepository;
-import ru.practicum.specification.UserSpecifications;
 
 @Service
 @RequiredArgsConstructor
@@ -26,14 +24,11 @@ public class UserService implements IUserService {
 
     @Override
     public List<UserDto> findUsers(List<Long> ids, Integer from, Integer size) {
-        List<UserDto> userDtos = new ArrayList<>();
-        Specification<User> specification = Specification.where(UserSpecifications.hasIds(ids));
-        if (ids != null)
-            userDtos.addAll(userRepository.findAll(specification).stream().map(userMapper::toUserDto).toList());
-        else
-            userDtos.addAll(
-                    userRepository.findAll(PageRequest.of(from, size)).stream().map(userMapper::toUserDto).toList());
-        return userDtos;
+        if (ids == null)
+            return userRepository.findAll(PageRequest.of(from, size)).stream().map(userMapper::toUserDto)
+                    .collect(Collectors.toList());
+        return userRepository.findAllById(ids).stream().map(userMapper::toUserDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -48,5 +43,4 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new NotFoundException("User with id=" + userId + " was not found"));
         userRepository.delete(user);
     }
-
 }
