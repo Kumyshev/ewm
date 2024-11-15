@@ -11,6 +11,7 @@ import org.mapstruct.ReportingPolicy;
 import ru.practicum.dto.EventFullDto;
 import ru.practicum.dto.EventShortDto;
 import ru.practicum.dto.NewEventDto;
+import ru.practicum.dto.UpdateEventAdminRequest;
 import ru.practicum.dto.UpdateEventUserRequest;
 import ru.practicum.model.Event;
 import ru.practicum.model.Location;
@@ -38,4 +39,7 @@ public interface EventMapper {
 
     @Mapping(target = "category", ignore = true)
     void toUpdate(UpdateEventUserRequest updateEventUserRequest, @MappingTarget Event event);
+
+    @Mapping(target = "category", ignore = true)
+    void toUpdate(UpdateEventAdminRequest updateEventAdminRequest, @MappingTarget Event event);
 }

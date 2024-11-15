@@ -220,12 +220,15 @@ public class EventService implements IEventService {
             throw new BadRequestException("Request must have status PENDING");
         }
 
-        if (updateEventAdminRequest.getStateAction().equals(UpdateEventAdminState.PUBLISH_EVENT)) {
-            LocalDateTime publishedOn = LocalDateTime.now();
-            event.setPublishedOn(publishedOn);
-            event.setState(EventState.PUBLISHED);
-        } else {
-            event.setState(EventState.CANCELED);
+        if (updateEventAdminRequest.getStateAction() != null) {
+            eventMapper.toUpdate(updateEventAdminRequest, event);
+            if (updateEventAdminRequest.getStateAction().equals(UpdateEventAdminState.PUBLISH_EVENT)) {
+                LocalDateTime publishedOn = LocalDateTime.now();
+                event.setPublishedOn(publishedOn);
+                event.setState(EventState.PUBLISHED);
+            } else {
+                event.setState(EventState.CANCELED);
+            }
         }
         return eventMapper.toEventFullDto(eventRepository.save(event));
     }
