@@ -23,25 +23,22 @@ public class CategoryService implements ICategoryService {
     private final CategoryMapper categoryMapper;
 
     @Override
-    public CategoryDto saveCategory(NewCategoryDto newCategoryDto) {
+    public CategoryDto saveCategoryByAdmin(NewCategoryDto newCategoryDto) {
         Category category = categoryMapper.toCategory(newCategoryDto);
         return categoryMapper.toCategoryDto(categoryRepository.save(category));
     }
 
     @Override
-    public void deleteCategory(Long catId) {
+    public void deleteCategoryByAdmin(Long catId) {
         Category category = categoryRepository.findById(catId)
                 .orElseThrow(() -> new NotFoundException("Category with id=" + catId + " was not found"));
         categoryRepository.delete(category);
     }
 
     @Override
-    public CategoryDto updateCategory(Long catId, NewCategoryDto newCategoryDto) {
+    public CategoryDto updateCategoryByAdmin(Long catId, NewCategoryDto newCategoryDto) {
         Category category = categoryRepository.findById(catId)
                 .orElseThrow(() -> new NotFoundException("Category with id=" + catId + " was not found"));
-        if (category.getName().equals(newCategoryDto.getName())) {
-
-        }
         category.setName(newCategoryDto.getName());
         return categoryMapper.toCategoryDto(categoryRepository.save(category));
     }
