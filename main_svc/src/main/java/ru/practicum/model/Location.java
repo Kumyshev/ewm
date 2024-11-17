@@ -1,11 +1,9 @@
-package ru.practicum.dto;
+package ru.practicum.model;
 
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Setter
-@Getter
+@Data
 @Builder
 public class Location {
     private Float lat;
