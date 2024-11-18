@@ -91,9 +91,7 @@ public class CommentService implements ICommentService {
 
     @Override
     public void deleteCommentByAdmin(Long commentId) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow();
-        commentRepository.delete(comment);
+        commentRepository.deleteById(commentId);
     }
 
 }
