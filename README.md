@@ -2,4 +2,4 @@
 Template repository for ExploreWithMe project.
 
 
-https://github.com/Kumyshev/ewm/pull/4
+https://github.com/Kumyshev/ewm/pull/5
