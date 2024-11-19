@@ -263,7 +263,7 @@ public class EventService implements IEventService {
         String uri = request.getRequestURI();
         List<String> uris = List.of(uri);
         @SuppressWarnings("unchecked")
-        List<ViewStatsDto> views = (List<ViewStatsDto>) clientService.getStats(start, end, uris, true).getBody();
+        List<ViewStatsDto> views = (List<ViewStatsDto>) clientService.getStats(start, end, uris, false).getBody();
 
         for (Event event : events) {
             event.setViews(views.size());
