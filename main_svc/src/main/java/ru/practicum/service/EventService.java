@@ -101,6 +101,9 @@ public class EventService implements IEventService {
         Event event = eventRepository.findByInitiator_IdAndId(userId, eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
 
+        if (event.getState().equals(EventState.PUBLISHED)) {
+            throw new BadRequestException("");
+        }
         LocalDateTime eventDate = event.getEventDate();
         if (eventDate.isBefore(LocalDateTime.now().plusHours(2))) {
             throw new ForbiddenException("");
