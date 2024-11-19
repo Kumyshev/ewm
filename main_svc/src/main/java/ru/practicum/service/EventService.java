@@ -277,6 +277,15 @@ public class EventService implements IEventService {
             clientService.postHit(endpointHitDto);
         }
 
+        if (events.isEmpty()) {
+            EndpointHitDto endpointHitDto = EndpointHitDto.builder()
+                    .app(appName)
+                    .uri(uri)
+                    .ip(request.getRemoteAddr())
+                    .timestamp(LocalDateTime.now().format(StatSvcProperties.DATE_TIME_FORMATTER)).build();
+            clientService.postHit(endpointHitDto);
+        }
+
         if (sort != null) {
             if (sort.equals(EventSortWay.EVENT_DATE)) {
                 list.stream().sorted((e1, e2) -> e1.getEventDate().compareTo(e2.getEventDate()))
