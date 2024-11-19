@@ -42,7 +42,7 @@ public class HttpService implements IHttpService {
             }
         } else {
             if (unique) {
-                return null;
+                return repository.getUniqueStatsByUris(start, end, uris);
             } else {
                 return repository.getStatsByUris(start, end, uris);
             }
