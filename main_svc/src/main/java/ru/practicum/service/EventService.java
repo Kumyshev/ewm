@@ -262,10 +262,10 @@ public class EventService implements IEventService {
         LocalDateTime end = LocalDateTime.now();
         String uri = request.getRequestURI();
         List<String> uris = List.of(uri);
+        @SuppressWarnings("unchecked")
+        List<ViewStatsDto> views = (List<ViewStatsDto>) clientService.getStats(start, end, uris, false).getBody();
 
         for (Event event : events) {
-            @SuppressWarnings("unchecked")
-            List<ViewStatsDto> views = (List<ViewStatsDto>) clientService.getStats(start, end, uris, false).getBody();
             event.setViews(views.size());
 
             EndpointHitDto endpointHitDto = EndpointHitDto.builder()
