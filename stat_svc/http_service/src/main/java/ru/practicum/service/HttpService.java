@@ -1,6 +1,5 @@
 package ru.practicum.service;
 
-import java.security.InvalidParameterException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -32,12 +31,8 @@ public class HttpService implements IHttpService {
     public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, @Nullable List<String> uris,
             @Nullable Boolean unique) {
 
-        if (start == null)
+        if (start == null || end.isBefore(start))
             throw new BadRequestException(null);
-
-        if (end.isBefore(start)) {
-            throw new InvalidParameterException("Неверно указана дата!!!");
-        }
 
         if (uris == null) {
             if (unique) {
