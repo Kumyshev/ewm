@@ -255,6 +255,27 @@ public class EventService implements IEventService {
 
         List<EventShortDto> list = eventRepository.findAll(specification, PageRequest.of(from, size)).stream()
                 .map(eventMapper::toEventShortDto).collect(Collectors.toList());
+        List<Event> events = eventRepository.findAll(specification, PageRequest.of(from, size)).stream()
+                .collect(Collectors.toList());
+
+        LocalDateTime start = LocalDateTime.now().minusYears(10);
+        LocalDateTime end = LocalDateTime.now();
+        String uri = request.getRequestURI();
+        List<String> uris = List.of(uri);
+        @SuppressWarnings("unchecked")
+        List<ViewStatsDto> views = (List<ViewStatsDto>) clientService.getStats(start, end, uris, true).getBody();
+
+        for (Event event : events) {
+            event.setViews(views.size());
+
+            EndpointHitDto endpointHitDto = EndpointHitDto.builder()
+                    .app(appName)
+                    .uri(uri)
+                    .ip(request.getRemoteAddr())
+                    .timestamp(LocalDateTime.now().format(StatSvcProperties.DATE_TIME_FORMATTER)).build();
+
+            clientService.postHit(endpointHitDto);
+        }
 
         if (sort != null) {
             if (sort.equals(EventSortWay.EVENT_DATE)) {
