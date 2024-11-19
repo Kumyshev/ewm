@@ -34,7 +34,7 @@ public class HttpService implements IHttpService {
         if (start == null || end.isBefore(start))
             throw new BadRequestException(null);
 
-        if (uris == null) {
+        if (uris == null || uris.isEmpty()) {
             if (unique) {
                 return repository.getUniqueStats(start, end);
             } else {
