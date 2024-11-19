@@ -10,6 +10,7 @@ import io.micrometer.common.lang.Nullable;
 import lombok.RequiredArgsConstructor;
 import ru.practicum.EndpointHitDto;
 import ru.practicum.ViewStatsDto;
+import ru.practicum.exception.BadRequestException;
 import ru.practicum.impl.IHttpService;
 import ru.practicum.mapper.HitsMapper;
 import ru.practicum.model.EndpointHit;
@@ -30,6 +31,10 @@ public class HttpService implements IHttpService {
     @Override
     public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, @Nullable List<String> uris,
             @Nullable Boolean unique) {
+
+        if (start == null)
+            throw new BadRequestException(null);
+
         if (end.isBefore(start)) {
             throw new InvalidParameterException("Неверно указана дата!!!");
         }
