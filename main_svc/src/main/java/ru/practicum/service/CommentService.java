@@ -58,10 +58,9 @@ public class CommentService implements ICommentService {
 
     @Override
     public void deleteCommentByUser(Long userId, Long eventId) {
-        User user = userRepository.findById(eventId).orElseThrow();
-        Event event = eventRepository.findById(eventId).orElseThrow();
-        Comment comment = commentRepository.findByUserAndEvent(user, event)
-                .orElseThrow();
+        User user = userRepository.findById(eventId).get();
+        Event event = eventRepository.findById(eventId).get();
+        Comment comment = commentRepository.findByUserAndEvent(user, event).get();
         commentRepository.delete(comment);
     }
 

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import ru.practicum.model.ApiError;
 
@@ -75,5 +76,17 @@ public class RestExceptionHandler {
         apiError.setReason("Incorrectly made request.");
         apiError.setMessage(ex.getMessage());
         return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<ApiError> handleException(Exception ex) {
+        List<String> errors = new ArrayList<>();
+        ApiError apiError = new ApiError();
+        apiError.setErrors(errors);
+        apiError.setStatus(HttpStatus.BAD_REQUEST.name());
+        apiError.setReason("");
+        apiError.setMessage(ex.getMessage());
+        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 }
