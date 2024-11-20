@@ -263,28 +263,17 @@ public class EventService implements IEventService {
         String uri = request.getRequestURI();
         List<String> uris = List.of(uri);
         @SuppressWarnings("unchecked")
-        List<ViewStatsDto> views = (List<ViewStatsDto>) clientService.getStats(start, end, uris, false).getBody();
+        List<ViewStatsDto> views = (List<ViewStatsDto>) clientService.getStats(start, end, uris, true).getBody();
 
-        for (Event event : events) {
-            event.setViews(views.size());
+        events.get(0).setViews(views.size());
 
-            EndpointHitDto endpointHitDto = EndpointHitDto.builder()
-                    .app(appName)
-                    .uri(uri)
-                    .ip(request.getRemoteAddr())
-                    .timestamp(LocalDateTime.now().format(StatSvcProperties.DATE_TIME_FORMATTER)).build();
+        EndpointHitDto endpointHitDto = EndpointHitDto.builder()
+                .app(appName)
+                .uri(uri)
+                .ip(request.getRemoteAddr())
+                .timestamp(LocalDateTime.now().format(StatSvcProperties.DATE_TIME_FORMATTER)).build();
 
-            clientService.postHit(endpointHitDto);
-        }
-
-        if (events.isEmpty()) {
-            EndpointHitDto endpointHitDto = EndpointHitDto.builder()
-                    .app(appName)
-                    .uri(uri)
-                    .ip(request.getRemoteAddr())
-                    .timestamp(LocalDateTime.now().format(StatSvcProperties.DATE_TIME_FORMATTER)).build();
-            clientService.postHit(endpointHitDto);
-        }
+        clientService.postHit(endpointHitDto);
 
         if (sort != null) {
             if (sort.equals(EventSortWay.EVENT_DATE)) {
