@@ -12,10 +12,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,6 +25,7 @@ public class HttpServiceController {
     private final IHttpService service;
 
     @PostMapping(StatSvcProperties.API_PREFIX_HIT)
+    @ResponseStatus(HttpStatus.CREATED)
     public EndpointHitDto add(@RequestBody EndpointHitDto dto) {
         return service.add(dto);
     }
